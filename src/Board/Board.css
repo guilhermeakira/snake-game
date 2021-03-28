@@ -1,0 +1,19 @@
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.cell {
+  height: 5vh;
+  width: 5vh;
+  display: inline-block;
+  outline: 1px solid white;
+}
+
+.snake {
+  background-color: red;
+}
+
+.food {
+  background-color: green;
+}
