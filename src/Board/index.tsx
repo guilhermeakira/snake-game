@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import useInterval from '../Hooks/useInterval';
 import { DEFAULT_BOARD_SIZE, DIRECTION } from './constants';
@@ -15,7 +15,7 @@ const Board: FC = () => {
   const [foodCell] = useState(new Set([getRandomFreeCell(boardSize, snakeCells)]));
   const [direction] = useState(DIRECTION.UP);
 
-  const getClassName: (cellValue: number) => string = useCallback((cellValue) => {
+  const getClassName = (cellValue: number): string => {
     if (foodCell.has(cellValue)) {
       return 'food';
     }
@@ -25,9 +25,9 @@ const Board: FC = () => {
     }
 
     return '';
-  }, [snakeCells, foodCell])
+  };
 
-  const handleSnakeMovement = (boardSize: number) => {
+  const handleSnakeMovement = (): void => {
     const previousTailValue = snake.tail.value;
     const nextHeadValue = getCellValueInDirection(snake.head.value, direction, boardSize);
 
@@ -41,7 +41,7 @@ const Board: FC = () => {
   };
 
   useInterval(() => {
-    handleSnakeMovement(boardSize);
+    handleSnakeMovement();
   }, 500);
 
   return (
