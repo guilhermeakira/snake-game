@@ -1,4 +1,4 @@
-export const DEFAULT_BOARD_SIZE = 10;
+export const DEFAULT_BOARD_SIZE = 15;
 
 export enum DIRECTION {
   UP = "UP",

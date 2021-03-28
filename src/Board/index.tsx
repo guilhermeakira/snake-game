@@ -1,53 +1,48 @@
 import React, { FC, useCallback, useState } from 'react';
 
+import useInterval from '../Hooks/useInterval';
 import { DEFAULT_BOARD_SIZE, DIRECTION } from './constants';
+import { getBoard, getRandomFreeCell, getCellValueInDirection } from './boardFunctions';
+import { LinkedList } from '../LinkedList';
 
 import './Board.css';
-
-const getBoard = (boardSize: number): number[][] => {
-  const board = [];
-  let counter = 1;
-  for (let row = 0; row < boardSize; row++) {
-    const currentRow = [];
-    for (let column = 0; column < boardSize; column++) {
-      currentRow.push(counter++);
-    }
-    board.push(currentRow);
-  }
-  return board;
-}
-
-const getRandomCell = (boardSize: number): number => Math.floor(Math.random() * boardSize * boardSize) + 1;
-
-const getRandomFreeCell = (boardSize: number, blackList?: Set<number>): number => {
-  let possibleValue = getRandomCell(boardSize);
-  if (!blackList) {
-    return possibleValue;
-  }
-  while (blackList.has(possibleValue)) {
-    possibleValue = getRandomCell(boardSize);
-  }
-  return possibleValue;
-}
 
 const Board: FC = () => {
   const [boardSize] = useState(DEFAULT_BOARD_SIZE);
   const [board] = useState(getBoard(boardSize));
-  const [snake] = useState(new Set([getRandomFreeCell(boardSize)]));
-  const [food] = useState(new Set([getRandomFreeCell(boardSize, snake)]));
+  const [snake] = useState(new LinkedList(getRandomFreeCell(boardSize)));
+  const [snakeCells, setSnakeCells] = useState(new Set([snake.head.value]));
+  const [foodCell] = useState(new Set([getRandomFreeCell(boardSize, snakeCells)]));
   const [direction] = useState(DIRECTION.UP);
 
   const getClassName: (cellValue: number) => string = useCallback((cellValue) => {
-    if (food.has(cellValue)) {
+    if (foodCell.has(cellValue)) {
       return 'food';
     }
 
-    if (snake.has(cellValue)) {
+    if (snakeCells.has(cellValue)) {
       return 'snake';
     }
 
     return '';
-  }, [snake, food])
+  }, [snakeCells, foodCell])
+
+  const handleSnakeMovement = (boardSize: number) => {
+    const previousTailValue = snake.tail.value;
+    const nextHeadValue = getCellValueInDirection(snake.head.value, direction, boardSize);
+
+    snake.head.value = nextHeadValue;
+
+    const nextSnakeCells = new Set(snakeCells);
+    nextSnakeCells.delete(previousTailValue);
+    nextSnakeCells.add(nextHeadValue);
+
+    setSnakeCells(nextSnakeCells);
+  };
+
+  useInterval(() => {
+    handleSnakeMovement(boardSize);
+  }, 500);
 
   return (
     <>
