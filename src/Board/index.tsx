@@ -1,7 +1,7 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import useInterval from '../Hooks/useInterval';
-import { DEFAULT_BOARD_SIZE, DIRECTION } from './constants';
+import { DEFAULT_BOARD_SIZE, Direction, ArrowKeyDirectionMap } from './constants';
 import { getBoard, getRandomFreeCell, getCellValueInDirection } from './boardFunctions';
 import { LinkedList } from '../LinkedList';
 
@@ -13,7 +13,8 @@ const Board: FC = () => {
   const [snake] = useState(new LinkedList(getRandomFreeCell(boardSize)));
   const [snakeCells, setSnakeCells] = useState(new Set([snake.head.value]));
   const [foodCell] = useState(new Set([getRandomFreeCell(boardSize, snakeCells)]));
-  const [direction] = useState(DIRECTION.UP);
+  const [direction, setDirection] = useState(Direction.Up);
+  const [hasStarted, setHasStarted] = useState(false);
 
   const getClassName = (cellValue: number): string => {
     if (foodCell.has(cellValue)) {
@@ -28,6 +29,9 @@ const Board: FC = () => {
   };
 
   const handleSnakeMovement = (): void => {
+    if (!hasStarted) {
+      return;
+    }
     const previousTailValue = snake.tail.value;
     const nextHeadValue = getCellValueInDirection(snake.head.value, direction, boardSize);
 
@@ -40,9 +44,22 @@ const Board: FC = () => {
     setSnakeCells(nextSnakeCells);
   };
 
+  const handleKeyDown = (event: KeyboardEvent) => {
+    setHasStarted(true);
+    const newDirection: Direction = ArrowKeyDirectionMap[event.key];
+    if (!newDirection) {
+      return;
+    }
+    setDirection(newDirection);
+  }
+
   useInterval(() => {
     handleSnakeMovement();
   }, 500);
+
+  useEffect(() => {
+    window.addEventListener('keydown', (e) => handleKeyDown(e));
+  }, []);
 
   return (
     <>

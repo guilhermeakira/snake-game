@@ -1,4 +1,4 @@
-import { DIRECTION } from './constants';
+import { Direction } from './constants';
 
 export const getBoard = (boardSize: number): number[][] => {
   const board = [];
@@ -27,19 +27,18 @@ export const getRandomFreeCell = (boardSize: number, blackList?: Set<number>): n
 }
 
 
-export const getCellValueInDirection = (currentHeadValue: number, direction: DIRECTION, boardSize: number): number => {
-  if (direction === DIRECTION.UP) {
+export const getCellValueInDirection = (currentHeadValue: number, direction: Direction, boardSize: number): number => {
+  if (direction === Direction.Up) {
     return currentHeadValue - boardSize;
   }
-  if (direction === DIRECTION.DOWN) {
+  if (direction === Direction.Down) {
     return currentHeadValue + boardSize;
   }
-  if (direction === DIRECTION.RIGHT) {
+  if (direction === Direction.Right) {
     return currentHeadValue + 1;
   }
-  if (direction === DIRECTION.LEFT) {
+  if (direction === Direction.Left) {
     return currentHeadValue - 1;
   }
   return currentHeadValue;
 }
-
