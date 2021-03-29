@@ -42,3 +42,31 @@ export const getCellValueInDirection = (currentHeadValue: number, direction: Dir
   }
   return currentHeadValue;
 }
+
+export const isOutOfBounds = (previousHeadValue: number, nextHeadValue: number, boardSize: number): boolean => {
+  const isOutOfBoundsUp = nextHeadValue < 1;
+  if (isOutOfBoundsUp) {
+    return true;
+  }
+
+  const isOutOfBoundsDown = nextHeadValue > boardSize * boardSize;
+  if (isOutOfBoundsDown) {
+    return true;
+  }
+
+  const currentHeadValueIsFarLeft = previousHeadValue % boardSize === 1;
+  const nextHeadValueIsFarRight = nextHeadValue % boardSize === 0;
+  const isOutOfBoundsLeft = currentHeadValueIsFarLeft && nextHeadValueIsFarRight;
+  if (isOutOfBoundsLeft) {
+    return true;
+  }
+
+  const currentHeadValueIsFarRight = previousHeadValue % boardSize === 0;
+  const nextHeadValueIsFarLeft = nextHeadValue % boardSize === 1;
+  const isOutOfBoundsRight = currentHeadValueIsFarRight && nextHeadValueIsFarLeft;
+  if (isOutOfBoundsRight) {
+    return true;
+  }
+
+  return false;
+}
