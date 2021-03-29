@@ -5,7 +5,7 @@
 
 .cell {
   height: 5vh;
-  width: 5vh;
+  aspect-ratio: 1;
   display: inline-block;
   outline: 1px solid white;
 }
