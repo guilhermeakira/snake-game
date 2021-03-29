@@ -2,6 +2,8 @@
 
 This project is meant to improve my typescript knowledge and create a simple snake game.
 
+Based on [this snake example](https://github.com/clementmihailescu/Snake-Game-Reverse-LL-Tutorial).
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

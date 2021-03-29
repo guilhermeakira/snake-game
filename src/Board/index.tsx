@@ -127,8 +127,9 @@ const Board: FC = () => {
 
   return (
     <>
-      BoardSize
-      <input value={boardSize} onChange={handleBoardSizeChange} />
+      <h1>Snake!</h1>
+      <label htmlFor="boardSize">BoardSize</label>
+      <input id="boardSize" value={boardSize} onChange={handleBoardSizeChange} />
       <div className="board">
         {board.map((row, rowIndex) => (
           <div key={rowIndex} className="row">
