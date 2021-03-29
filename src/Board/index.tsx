@@ -3,7 +3,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react';
 import useInterval from '../Hooks/useInterval';
 import { DEFAULT_BOARD_SIZE, Direction, ArrowKeyDirectionMap } from './constants';
 import { getBoard, getRandomFreeCell, getCellValueInDirection, isOutOfBounds } from './boardFunctions';
-import { LinkedList } from '../LinkedList';
+import { LinkedList, LinkedListNode } from '../LinkedList';
 
 import './Board.css';
 
@@ -12,12 +12,12 @@ const Board: FC = () => {
   const [board] = useState(getBoard(boardSize));
   const [snake, setSnake] = useState(new LinkedList(getRandomFreeCell(boardSize)));
   const [snakeCells, setSnakeCells] = useState(new Set([snake.head.value]));
-  const [foodCell, setFoodCell] = useState(new Set([getRandomFreeCell(boardSize, snakeCells)]));
+  const [foodCell, setFoodCell] = useState(getRandomFreeCell(boardSize, snakeCells));
   const [direction, setDirection] = useState(Direction.Up);
   const [hasStarted, setHasStarted] = useState(false);
 
   const getClassName = (cellValue: number): string => {
-    if (foodCell.has(cellValue)) {
+    if (foodCell === cellValue) {
       return 'food';
     }
 
@@ -33,7 +33,22 @@ const Board: FC = () => {
     setHasStarted(false);
     setSnake(new LinkedList(snakeStartingCellValue));
     setSnakeCells(new Set([snakeStartingCellValue]))
-    setFoodCell(new Set([getRandomFreeCell(boardSize, snakeCells)]));
+    setFoodCell(getRandomFreeCell(boardSize, snakeCells));
+  }
+
+  const handleFoodConsumption = (): void => {
+    setFoodCell(getRandomFreeCell(boardSize, snakeCells));
+  }
+
+  const growSnake = (previousTailValue: number): void => {
+    const newTailNode = new LinkedListNode(previousTailValue)
+    const currentTail = snake.tail;
+    snake.tail = newTailNode;
+    snake.tail.next = currentTail;
+    const nextSnakeCells = new Set(snakeCells);
+    nextSnakeCells.add(foodCell);
+
+    setSnakeCells(nextSnakeCells);
   }
 
   const handleSnakeMovement = (): void => {
@@ -44,11 +59,19 @@ const Board: FC = () => {
     const previousHeadValue = snake.head.value;
     const nextHeadValue = getCellValueInDirection(previousHeadValue, direction, boardSize);
 
-    snake.head.value = nextHeadValue;
-
-    if (isOutOfBounds(previousHeadValue, nextHeadValue, boardSize)) {
+    if (isOutOfBounds(previousHeadValue, nextHeadValue, boardSize)
+      || snakeCells.has(nextHeadValue)) {
       handleGameOver();
       return;
+    }
+
+    const newHeadNode = new LinkedListNode(nextHeadValue);
+    const previousHeadNode = snake.head;
+    snake.head = newHeadNode;
+    previousHeadNode.next = newHeadNode;
+
+    if (snake.tail.next !== null) {
+      snake.tail = snake.tail.next;
     }
 
     const nextSnakeCells = new Set(snakeCells);
@@ -56,6 +79,11 @@ const Board: FC = () => {
     nextSnakeCells.add(nextHeadValue);
 
     setSnakeCells(nextSnakeCells);
+
+    if (foodCell === nextHeadValue) {
+      growSnake(previousTailValue);
+      handleFoodConsumption();
+    }
   };
 
   const handleKeyDown: (event: KeyboardEvent) => void = useCallback((event) => {
@@ -71,7 +99,7 @@ const Board: FC = () => {
 
   useInterval(() => {
     handleSnakeMovement();
-  }, 500);
+  }, 200);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -84,7 +112,7 @@ const Board: FC = () => {
       {board.map((row, rowIndex) => (
         <div key={rowIndex} className="row">
           {row.map((cellValue) => (
-            <div key={cellValue} className={`cell ${getClassName(cellValue)}`}>{cellValue}</div>
+            <div key={cellValue} className={`cell ${getClassName(cellValue)}`}/>
           ))}
         </div>
       ))}
